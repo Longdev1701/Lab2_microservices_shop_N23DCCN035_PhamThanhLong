@@ -1,7 +1,8 @@
-import dotenv from "dotenv";
-dotenv.config();
+import { defineConfig } from "prisma/config";
 
-import { defineConfig, env } from "prisma/config";
+import "dotenv/config";
+
+const migrationUrl = process.env.DIRECT_URL || process.env.DATABASE_URL;
 
 export default defineConfig({
   schema: "prisma/schema.prisma",
@@ -10,6 +11,6 @@ export default defineConfig({
     seed: "prisma/seed.js",
   },
   datasource: {
-    url: env("DIRECT_URL"),
+    url: migrationUrl,
   },
 });
