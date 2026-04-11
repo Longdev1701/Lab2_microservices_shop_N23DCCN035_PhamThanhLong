@@ -1,0 +1,12 @@
+{
+  "name": "supabase-maintenance",
+  "version": "1.0.0",
+  "private": true,
+  "type": "commonjs",
+  "scripts": {
+    "keepalive": "node keep-supabase-alive.js"
+  },
+  "dependencies": {
+    "pg": "^8.20.0"
+  }
+}

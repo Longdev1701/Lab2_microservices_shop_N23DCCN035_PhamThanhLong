@@ -1,0 +1,31 @@
+name: Supabase Keepalive
+
+on:
+  schedule:
+    - cron: "0 2 */3 * *"
+  workflow_dispatch:
+
+jobs:
+  keepalive:
+    name: Ping Supabase database
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Install maintenance dependencies
+        run: npm ci
+        working-directory: microservices-shop/maintenance
+
+      - name: Run Supabase keepalive query
+        run: npm run keepalive
+        working-directory: microservices-shop/maintenance
+        env:
+          SUPABASE_DATABASE_URL: ${{ secrets.SUPABASE_DATABASE_URL }}
