@@ -5,13 +5,13 @@ on:
     branches:
       - main
     paths:
-      - "microservices-shop/product-service/**"
+      - "product-service/**"
       - ".github/workflows/product-service-ci.yml"
   pull_request:
     branches:
       - main
     paths:
-      - "microservices-shop/product-service/**"
+      - "product-service/**"
       - ".github/workflows/product-service-ci.yml"
   workflow_dispatch:
 
@@ -23,7 +23,7 @@ jobs:
 
     defaults:
       run:
-        working-directory: microservices-shop/product-service
+        working-directory: product-service
 
     steps:
       - name: Checkout repository
@@ -34,7 +34,7 @@ jobs:
         with:
           node-version: 22
           cache: npm
-          cache-dependency-path: microservices-shop/product-service/package-lock.json
+          cache-dependency-path: product-service/package-lock.json
 
       - name: Install dependencies
         run: npm ci

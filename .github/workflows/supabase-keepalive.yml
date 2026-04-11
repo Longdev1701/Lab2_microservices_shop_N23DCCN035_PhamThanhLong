@@ -22,10 +22,10 @@ jobs:
 
       - name: Install maintenance dependencies
         run: npm ci
-        working-directory: microservices-shop/maintenance
+        working-directory: maintenance
 
       - name: Run Supabase keepalive query
         run: npm run keepalive
-        working-directory: microservices-shop/maintenance
+        working-directory: maintenance
         env:
           SUPABASE_DATABASE_URL: ${{ secrets.SUPABASE_DATABASE_URL }}
