@@ -5,8 +5,12 @@ const {
   createProduct,
   updateProduct,
   deleteProduct,
+  uploadProductImage,
 } = require("../controllers/productController");
 const { productValidation } = require("../middleware/validate");
+const { cacheProductList } = require("../middleware/cache");
+const upload = require("../middleware/upload");
+const productExists = require("../middleware/productExists");
 
 /**
  * @swagger
@@ -65,7 +69,7 @@ const { productValidation } = require("../middleware/validate");
  *             schema:
  *               $ref: "#/components/schemas/PaginatedProducts"
  */
-router.get("/", getProducts);
+router.get("/", cacheProductList, getProducts);
 
 /**
  * @swagger
@@ -100,6 +104,43 @@ router.get("/", getProducts);
 router.post("/", productValidation, createProduct);
 
 router.get("/:id", getProductById);
+
+/**
+ * @swagger
+ * /api/products/{id}/image:
+ *   post:
+ *     summary: Upload ảnh sản phẩm lên Cloudinary
+ *     tags: [Products]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: ID sản phẩm
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         multipart/form-data:
+ *           schema:
+ *             type: object
+ *             required: [image]
+ *             properties:
+ *               image:
+ *                 type: string
+ *                 format: binary
+ *     responses:
+ *       200:
+ *         description: Upload thành công, imageUrl đã được cập nhật
+ *       400:
+ *         description: Thiếu file ảnh
+ *       404:
+ *         description: Không tìm thấy sản phẩm
+ */
+router.post("/:id/image", productExists, upload.single("image"), uploadProductImage);
+
 router.put("/:id", updateProduct);
 router.delete("/:id", deleteProduct);
 

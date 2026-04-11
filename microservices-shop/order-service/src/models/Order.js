@@ -28,6 +28,8 @@ const OrderSchema = new mongoose.Schema({
 }, {
     timestamps: true, // Tự thêm createdAt & updatedAt
     versionKey: false, // Bỏ __v field
+    toJSON: { virtuals: true },
+    toObject: { virtuals: true },
 });
 // Middleware: tự sinh orderCode trước khi save
 OrderSchema.pre("save", async function (next) {

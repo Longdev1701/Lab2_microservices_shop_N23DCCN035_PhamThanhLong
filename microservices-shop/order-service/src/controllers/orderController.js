@@ -2,8 +2,18 @@ const Order = require("../models/Order");
 // Tạo đơn hàng mới
 const createOrder = async (req, res, next) => {
     try {
-        const { customerId, customerName, customerEmail, items, shippingAddress, note } =
+        const { customerId, customerName, customerEmail, items = [], shippingAddress, note } =
             req.body;
+        const normalizedCustomerId = customerId || req.headers["x-user-id"];
+        const normalizedCustomerEmail = customerEmail || req.headers["x-user-email"];
+
+        if (!normalizedCustomerId || !customerName || !normalizedCustomerEmail || !items.length) {
+            return res.status(422).json({
+                success: false,
+                message: "customerId/customerName/customerEmail va items la bat buoc"
+            });
+        }
+
         // Tính tổng tiền & subtotal từng item
         const processedItems = items.map(item => ({
             ...item,
@@ -11,7 +21,8 @@ const createOrder = async (req, res, next) => {
         }));
         const totalAmount = processedItems.reduce((sum, i) => sum + i.subtotal, 0);
         const order = await Order.create({
-            customerId, customerName, customerEmail,
+            customerId: parseInt(normalizedCustomerId), customerName,
+            customerEmail: normalizedCustomerEmail,
             items: processedItems, totalAmount,
             shippingAddress, note
         });
@@ -33,8 +44,8 @@ const getOrdersByCustomer = async (req, res, next) => {
         res.json({
             success: true, data: orders,
             pagination: {
-                total, page: parseInt(page), totalPages: Math.ceil(total /
-                    limit)
+                total, page: parseInt(page), limit: parseInt(limit),
+                totalPages: Math.ceil(total / parseInt(limit))
             }
         });
     } catch (error) { next(error); }

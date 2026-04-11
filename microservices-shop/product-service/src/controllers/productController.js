@@ -1,4 +1,5 @@
 const prisma = require("../lib/prisma");
+const { clearProductListCache } = require("../middleware/cache");
 // ──────────────────────────────────
 // GET /api/products — Lấy danh sách có phân trang, lọc, sắp xếp
 // ──────────────────────────────────
@@ -72,6 +73,7 @@ res.json({ success: true, data: product });
                 data: { name, slug, price, description, stock, imageUrl, categoryId },
                 include: { category: true }
             });
+            await clearProductListCache();
             res.status(201).json({
                 success: true, data: product, message: "Tạo sản phẩm thành công" });
 } catch (error) { next(error); }
@@ -86,6 +88,7 @@ res.json({ success: true, data: product });
                     data: req.body,
                     include: { category: true }
                 });
+                await clearProductListCache();
                 res.json({ success: true, data: product, message: "Cập nhật thành công" });
             } catch (error) { next(error); }
         };
@@ -98,10 +101,39 @@ res.json({ success: true, data: product });
                     where: { id: parseInt(req.params.id) },
                     data: { isActive: false } // Soft delete — không xoá thật
                 });
+                await clearProductListCache();
                 res.json({ success: true, message: "Đã ẩn sản phẩm thành công" });
+            } catch (error) { next(error); }
+        };
+        // ──────────────────────────────────
+        // POST /api/products/:id/image
+        // ──────────────────────────────────
+        const uploadProductImage = async (req, res, next) => {
+            try {
+                if (!req.file) {
+                    return res.status(400).json({
+                        success: false,
+                        message: "Vui long chon file anh"
+                    });
+                }
+
+                const imageUrl = req.file.path || req.file.secure_url;
+                const product = await prisma.product.update({
+                    where: { id: parseInt(req.params.id) },
+                    data: { imageUrl },
+                    include: { category: true }
+                });
+
+                await clearProductListCache();
+
+                res.json({
+                    success: true,
+                    data: product,
+                    message: "Upload anh san pham thanh cong"
+                });
             } catch (error) { next(error); }
         };
         module.exports = {
             getProducts, getProductById, createProduct, updateProduct,
-            deleteProduct
+            deleteProduct, uploadProductImage
         };

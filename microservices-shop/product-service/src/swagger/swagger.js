@@ -13,6 +13,13 @@ const options = {
             { url: "https://product-service.railway.app", description: "Production" }
         ],
         components: {
+            securitySchemes: {
+                bearerAuth: {
+                    type: "http",
+                    scheme: "bearer",
+                    bearerFormat: "JWT"
+                }
+            },
             schemas: {
                 Product: {
                     type: "object",

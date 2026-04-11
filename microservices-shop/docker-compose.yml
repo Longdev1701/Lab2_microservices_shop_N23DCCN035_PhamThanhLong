@@ -6,6 +6,7 @@ networks:
 
 volumes:
   postgres_data:
+  auth_postgres_data:
   mongo_data:
 
 services:
@@ -29,6 +30,25 @@ services:
       timeout: 5s
       retries: 5
 
+  auth-postgres:
+    image: postgres:15-alpine
+    container_name: auth_postgres_db
+    environment:
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: secret
+      POSTGRES_DB: auth_db
+    volumes:
+      - auth_postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5433:5432"
+    networks:
+      - microservices-net
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U admin"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
   mongo:
     image: mongo:7
     container_name: mongo_db
@@ -43,6 +63,14 @@ services:
     networks:
       - microservices-net
 
+  redis:
+    image: redis:7-alpine
+    container_name: redis_cache
+    ports:
+      - "6379:6379"
+    networks:
+      - microservices-net
+
   # ─── Application Services ─────────────────
   product-service:
     build: ./product-service
@@ -52,11 +80,14 @@ services:
     environment:
       DATABASE_URL: postgresql://admin:secret@postgres:5432/products_db
       DIRECT_URL: postgresql://admin:secret@postgres:5432/products_db
+      REDIS_URL: redis://redis:6379
     ports:
       - "3001:3001"
     depends_on:
       postgres:
         condition: service_healthy
+      redis:
+        condition: service_started
     networks:
       - microservices-net
 
@@ -74,6 +105,26 @@ services:
     networks:
       - microservices-net
 
+  auth-service:
+    build: ./auth-service
+    container_name: auth_service
+    env_file:
+      - ./auth-service/.env
+    environment:
+      DATABASE_URL: postgresql://admin:secret@auth-postgres:5432/auth_db
+      DIRECT_URL: postgresql://admin:secret@auth-postgres:5432/auth_db
+      JWT_ACCESS_SECRET: change-me-access-secret
+      JWT_REFRESH_SECRET: change-me-refresh-secret
+      JWT_ACCESS_EXPIRES_IN: 15m
+      JWT_REFRESH_EXPIRES_IN: 7d
+    ports:
+      - "3003:3003"
+    depends_on:
+      auth-postgres:
+        condition: service_healthy
+    networks:
+      - microservices-net
+
   # ─── API Gateway ──────────────────────────
   api-gateway:
     build: ./api-gateway
@@ -83,8 +134,11 @@ services:
     environment:
       PRODUCT_SERVICE_URL: http://product-service:3001
       ORDER_SERVICE_URL: http://order-service:3002
+      AUTH_SERVICE_URL: http://auth-service:3003
+      JWT_ACCESS_SECRET: change-me-access-secret
     depends_on:
       - product-service
       - order-service
+      - auth-service
     networks:
       - microservices-net
