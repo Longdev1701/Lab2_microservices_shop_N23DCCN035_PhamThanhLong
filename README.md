@@ -14,6 +14,8 @@ product-service/
 maintenance/
 ```
 
+Railway root `Dockerfile` hien tai build va chay tat ca Node services trong cung mot container, public qua API Gateway. Khi deploy kieu nay, can set bien moi truong cho ca 4 service tren cung Railway service.
+
 Can them repository secret:
 
 ```txt

@@ -7,7 +7,7 @@
     "node": "22.x"
   },
   "scripts": {
-    "railway:build": "cd product-service && npm ci && npx prisma generate",
-    "railway:start": "cd product-service && npm start"
+    "railway:build": "cd product-service && npm ci && npx prisma generate && cd ../auth-service && npm ci && npx prisma generate && cd ../order-service && npm ci && cd ../api-gateway && npm ci",
+    "railway:start": "node scripts/start-all-services.js"
   }
 }

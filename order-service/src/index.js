@@ -1,7 +1,7 @@
 const app = require("./app");
 const connectDatabase = require("./config/database");
 
-const PORT = process.env.PORT || 3002;
+const PORT = process.env.ORDER_SERVICE_PORT || process.env.PORT || 3002;
 
 connectDatabase()
   .then(() => {

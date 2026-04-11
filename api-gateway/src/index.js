@@ -39,5 +39,5 @@ app.use("/api/auth", createProxyMiddleware({
         error: (err, req, res) => res.status(503).json({
             message: "Auth Service không khả dụng" }) }
 }));
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.GATEWAY_PORT || process.env.PORT || 3000;
 app.listen(PORT, () => console.log(` API Gateway running on port ${PORT}`));
