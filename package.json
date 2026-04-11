@@ -1,0 +1,13 @@
+{
+  "name": "microservices-shop-railway",
+  "version": "1.0.0",
+  "private": true,
+  "type": "commonjs",
+  "engines": {
+    "node": "22.x"
+  },
+  "scripts": {
+    "railway:build": "cd product-service && npm ci && npx prisma generate",
+    "railway:start": "cd product-service && npm start"
+  }
+}

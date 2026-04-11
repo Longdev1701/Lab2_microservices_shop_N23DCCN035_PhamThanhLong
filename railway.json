@@ -2,10 +2,10 @@
   "$schema": "https://railway.com/railway.schema.json",
   "build": {
     "builder": "RAILPACK",
-    "buildCommand": "cd product-service && npm ci && npx prisma generate"
+    "buildCommand": "npm run railway:build"
   },
   "deploy": {
-    "startCommand": "cd product-service && npm start",
+    "startCommand": "npm run railway:start",
     "healthcheckPath": "/health",
     "healthcheckTimeout": 100,
     "restartPolicyType": "ON_FAILURE",
